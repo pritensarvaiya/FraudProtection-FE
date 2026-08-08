@@ -1,0 +1,350 @@
+.app-shell {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: var(--dark);
+  color: #fff;
+  padding: 32px 24px;
+}
+
+.app-header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.app-badge {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.app-header h1 {
+  color: #fff;
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.app-header p {
+  color: #c7c7cc;
+  margin: 0;
+  max-width: 640px;
+}
+
+.app-main {
+  flex: 1;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .app-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+.analyze-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* --- Form --- */
+.analyze-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: var(--shadow);
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.field-group select,
+.field-group textarea,
+.field-group input {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text-h);
+  resize: vertical;
+}
+
+.field-group select:focus,
+.field-group textarea:focus,
+.field-group input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-h);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.error-banner {
+  background: var(--high-bg);
+  color: var(--high);
+  border: 1px solid var(--high);
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+/* --- Risk result --- */
+.risk-result {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.risk-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.risk-badge {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.risk-score {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.risk-low .risk-badge { background: var(--low-bg); color: var(--low); }
+.risk-suspicious .risk-badge { background: var(--suspicious-bg); color: var(--suspicious); }
+.risk-high .risk-badge { background: var(--high-bg); color: var(--high); }
+
+.risk-summary {
+  font-size: 15px;
+  color: var(--text-h);
+}
+
+.evidence-section h3,
+.actions-section h3,
+.guidance-section h3 {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.evidence-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.evidence-item {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: var(--accent-bg);
+}
+
+.evidence-pattern {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+
+.evidence-snippet {
+  margin: 6px 0;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--text-h);
+  border-left: none;
+  padding: 0;
+}
+
+.evidence-reason {
+  font-size: 13px;
+  color: var(--text);
+  margin: 0;
+}
+
+.actions-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.guidance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.language-toggle {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.language-toggle button {
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.language-toggle button.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.guidance-text {
+  font-size: 14px;
+  color: var(--text-h);
+  background: var(--bg);
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+.risk-disclaimer {
+  font-size: 12px;
+  color: var(--text);
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+/* --- History --- */
+.history-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.history-empty {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.history-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+}
+
+.history-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.history-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.history-preview {
+  font-size: 13px;
+  color: var(--text-h);
+  margin: 0;
+}
+
+.history-meta {
+  font-size: 11px;
+  color: var(--text);
+}
