@@ -11,14 +11,14 @@ const PLACEHOLDERS = {
   Message: "Paste the suspicious SMS or WhatsApp message here…",
   Email: "Paste the full email content, including the subject line…",
   Url: "https://suspicious-link.example.com/login",
-  Screenshot: "Paste the text you read from the screenshot…",
+  Screenshot: "Optional — add any extra text or context not visible in the screenshot…",
 };
 
 const LABELS = {
   Message: "Message content",
   Email: "Email content",
   Url: "URL to check",
-  Screenshot: "Text from the screenshot",
+  Screenshot: "Extra context (optional)",
 };
 
 export default function AnalyzeForm({ onAnalyze, isLoading }) {
@@ -27,23 +27,31 @@ export default function AnalyzeForm({ onAnalyze, isLoading }) {
   const [secondaryContent, setSecondaryContent] = useState("");
   const [imageDataUrl, setImageDataUrl] = useState(null);
   const [imageName, setImageName] = useState("");
-  const [ocrRunning, setOcrRunning] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
   const [isDraggingImage, setIsDraggingImage] = useState(false);
   const fileInputRef = useRef(null);
   const pasteAreaRef = useRef(null);
+  const formRef = useRef(null);
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (!content.trim()) return;
-    const submitSecondary = secondaryContent && !secondaryContent.startsWith("data:")
-      ? secondaryContent.trim()
-      : undefined;
+    const hasImage = inputType === "Screenshot" && imageDataUrl;
+    if (!content.trim() && !hasImage) return;
 
-    onAnalyze({
+    const payload = {
       inputType,
-      content,
-      secondaryContent: submitSecondary,
-    });
+      content: content.trim(),
+      secondaryContent: secondaryContent.trim() || undefined,
+    };
+
+    if (hasImage) {
+      const [header, base64] = imageDataUrl.split(",");
+      const mimeMatch = header.match(/data:(.*);base64/);
+      payload.imageBase64 = base64;
+      payload.imageMimeType = mimeMatch ? mimeMatch[1] : "image/png";
+    }
+
+    onAnalyze(payload);
   }
 
   useEffect(() => {
@@ -57,7 +65,7 @@ export default function AnalyzeForm({ onAnalyze, isLoading }) {
         const item = items[i];
         if (item.type && item.type.indexOf("image") !== -1) {
           const file = item.getAsFile();
-          if (file) readFileAndRunOcr(file);
+          if (file) attachImage(file);
           e.preventDefault();
           return;
         }
@@ -67,23 +75,27 @@ export default function AnalyzeForm({ onAnalyze, isLoading }) {
     const node = pasteAreaRef.current;
     node?.addEventListener("paste", handlePaste);
     return () => node?.removeEventListener("paste", handlePaste);
+  }, [inputType]);
+
+  useEffect(() => {
+    function handleRequestScreenshot() {
+      setInputType("Screenshot");
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      fileInputRef.current?.click();
+    }
+
+    window.addEventListener("request-screenshot-upload", handleRequestScreenshot);
+    return () => window.removeEventListener("request-screenshot-upload", handleRequestScreenshot);
   }, []);
 
-  async function readFileAndRunOcr(file) {
-    // Quick path: do not run OCR here (slow). Attach image data URL into secondaryContent
-    // so the backend (or future worker) can process it. Keep UI responsive.
-    setOcrRunning(true);
+  async function attachImage(file) {
+    setImageLoading(true);
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const dataUrl = ev.target.result;
-      setImageDataUrl(dataUrl);
+      setImageDataUrl(ev.target.result);
       setImageName(file.name || "image");
-      // set a helpful placeholder so users know to paste/type extracted text if desired
-      if (!content) setContent("(Image attached — paste or type the text you read from the screenshot here)");
       setInputType("Screenshot");
-      // Keep the image only locally (preview). Do NOT store base64 in `secondaryContent` —
-      // including it in the analyze JSON payload makes requests very large and slow.
-      setOcrRunning(false);
+      setImageLoading(false);
     };
     reader.readAsDataURL(file);
   }
@@ -91,7 +103,7 @@ export default function AnalyzeForm({ onAnalyze, isLoading }) {
   function handleFileChange(e) {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
-    readFileAndRunOcr(file);
+    attachImage(file);
   }
 
   function handleDrop(e) {
@@ -101,12 +113,12 @@ export default function AnalyzeForm({ onAnalyze, isLoading }) {
 
     const file = e.dataTransfer.files && e.dataTransfer.files[0];
     if (file && file.type.startsWith("image/")) {
-      readFileAndRunOcr(file);
+      attachImage(file);
     }
   }
 
   return (
-    <form className="analyze-form card" onSubmit={handleSubmit}>
+    <form className="analyze-form card" onSubmit={handleSubmit} ref={formRef}>
       <div className="form-head">
         <h2>Check something suspicious</h2>
         <p>Get an explainable risk assessment in seconds.</p>
@@ -137,7 +149,7 @@ export default function AnalyzeForm({ onAnalyze, isLoading }) {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder={PLACEHOLDERS[inputType]}
-          required
+          required={inputType !== "Screenshot"}
         />
         {content.length > 0 && (
           <p className="field-hint">{content.length.toLocaleString()} characters</p>
@@ -175,8 +187,8 @@ export default function AnalyzeForm({ onAnalyze, isLoading }) {
                 <span className="image-upload-kicker">Screenshot input</span>
                 <strong>Drop an image, paste one, or choose a file</strong>
                 <p>
-                  Add a screenshot of a message, email, or login page. We will keep it local for preview,
-                  so the analyze request stays fast.
+                  Add a screenshot of a message, email, or login page. The AI reads the text directly
+                  from the image — no need to retype it.
                 </p>
               </div>
 
@@ -185,10 +197,10 @@ export default function AnalyzeForm({ onAnalyze, isLoading }) {
                   type="button"
                   className="btn-primary image-upload-button"
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={ocrRunning}
-                  aria-disabled={ocrRunning}
+                  disabled={imageLoading}
+                  aria-disabled={imageLoading}
                 >
-                  {ocrRunning ? "Processing…" : "Choose image"}
+                  {imageLoading ? "Loading…" : "Choose image"}
                 </button>
                 <span className="image-upload-hint">Ctrl+V also works in the text box below</span>
               </div>
@@ -202,10 +214,11 @@ export default function AnalyzeForm({ onAnalyze, isLoading }) {
                 <div className="image-preview-meta">
                   <div className="image-preview-topline">
                     <strong>{imageName || "Image attached"}</strong>
-                    <span className="image-preview-badge">Ready</span>
+                    <span className="image-preview-badge">Ready to analyze</span>
                   </div>
                   <p>
-                    Screenshot attached. Review the text area below, then tap analyze.
+                    We will send this image to the AI so it can read the text itself. Add any extra
+                    context below if you like, then tap analyze.
                   </p>
                   <div className="image-preview-actions">
                     <button
@@ -239,7 +252,11 @@ export default function AnalyzeForm({ onAnalyze, isLoading }) {
         />
       </div>
 
-      <button type="submit" className="btn-primary" disabled={isLoading || !content.trim()}>
+      <button
+        type="submit"
+        className="btn-primary"
+        disabled={isLoading || (!content.trim() && !(inputType === "Screenshot" && imageDataUrl))}
+      >
         {isLoading ? (
           <>
             <span className="spinner" aria-hidden="true" />

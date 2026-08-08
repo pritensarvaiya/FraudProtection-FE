@@ -20,10 +20,10 @@ async function request(path, options) {
   return response.json();
 }
 
-export function analyzeContent({ inputType, content, secondaryContent }) {
+export function analyzeContent({ inputType, content, secondaryContent, imageBase64, imageMimeType }) {
   return request("/fraud/analyze", {
     method: "POST",
-    body: JSON.stringify({ inputType, content, secondaryContent }),
+    body: JSON.stringify({ inputType, content, secondaryContent, imageBase64, imageMimeType }),
   });
 }
 

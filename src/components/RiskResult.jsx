@@ -6,6 +6,12 @@ const RISK_STYLES = {
   High: { className: "risk-high", label: "High Risk" },
 };
 
+const SCREENSHOT_ACTION_PATTERN = /upload (the )?screenshot|paste the (text|screenshot)/i;
+
+function requestScreenshotUpload() {
+  window.dispatchEvent(new Event("request-screenshot-upload"));
+}
+
 export default function RiskResult({ result }) {
   const [language, setLanguage] = useState("en");
   const riskStyle = RISK_STYLES[result.riskLevel] || RISK_STYLES.Suspicious;
@@ -61,9 +67,18 @@ export default function RiskResult({ result }) {
         <section className="actions-section">
           <h3>Recommended next actions</h3>
           <ul className="actions-list">
-            {result.recommendedActions.map((action, idx) => (
-              <li key={idx}>{action}</li>
-            ))}
+            {result.recommendedActions.map((action, idx) =>
+              SCREENSHOT_ACTION_PATTERN.test(action) ? (
+                <li key={idx} className="action-item-with-cta">
+                  <span>{action}</span>
+                  <button type="button" className="btn-secondary action-cta" onClick={requestScreenshotUpload}>
+                    Upload screenshot
+                  </button>
+                </li>
+              ) : (
+                <li key={idx}>{action}</li>
+              )
+            )}
           </ul>
         </section>
       )}

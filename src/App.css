@@ -728,6 +728,19 @@ input[type='text']:focus {
   background: var(--accent);
 }
 
+.action-item-with-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.action-item-with-cta .action-cta {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 /* Guidance + language toggle */
 .guidance-header {
   display: flex;
