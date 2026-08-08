@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import AnalyzeForm from "./components/AnalyzeForm";
 import RiskResult from "./components/RiskResult";
 import HistoryList from "./components/HistoryList";
+import InstallPrompt from "./components/InstallPrompt";
 import { useTheme } from "./hooks/useTheme";
 import { analyzeContent, getHistory } from "./services/api";
 import "./App.css";
@@ -108,6 +109,7 @@ export default function App() {
 
       <main className="app-main">
         <section className="analyze-panel">
+          <InstallPrompt />
           <AnalyzeForm onAnalyze={handleAnalyze} isLoading={isAnalyzing} />
 
           {error && (
